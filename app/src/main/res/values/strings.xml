@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">amazetravels</string>
+    <string name="app_name">Amaze Travels</string>
+   
+    <string name="action_logout">Logout</string>
+    <string name="for_other_user">For my Friends/Family</string>
+    <string-array name="vehicle_types">
+        <item>Micro</item>
+        <item>Mini</item>
+        <item>SUV</item>
+        <item>Sedan</item>
+        <item>Prime</item>
+    </string-array>
+    <string-array name="tariffs">
+        <item>13 per km till 15 km</item>
+        <item>6 per km till 15 km</item>
+        <item>14 per km after 15 km</item>
+        <item>8 per km till 15 km</item>
+        <item>13 per km till 15 km</item>
+        <item>14 per km after 15 km</item>
+        <item>17 per km after 15 km</item>
+        <item>12 per km after 15 km</item>
+        <item>13 per km till 15 km</item>
+        <item>18 per km</item>
+
+    </string-array>
 </resources>
