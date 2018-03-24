@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-//        Intent intent = new Intent(this, LoginActivity.class);
-//        startActivity(intent);
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
 
         initOnCreate();
 
