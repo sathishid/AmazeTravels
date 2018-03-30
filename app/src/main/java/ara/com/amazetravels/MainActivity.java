@@ -30,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
     EditText input_OtherMobile;
     @BindView(R.id.spinner_vehicle_type)
     Spinner spinner_VehicleType;
-    @BindView(R.id.spinner_tariff)
-    Spinner spinner_Tariff;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,19 +71,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void populateSpinner() {
-        ArrayAdapter<CharSequence> vehicleAdapter = ArrayAdapter.createFromResource(this,
-                R.array.vehicle_types, android.R.layout.simple_spinner_item);
 
-        vehicleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    throw new UnsupportedOperationException("Need to implement");
+//        vehicleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//
+//        spinner_VehicleType.setAdapter(vehicleAdapter);
 
-        spinner_VehicleType.setAdapter(vehicleAdapter);
 
-        ArrayAdapter<CharSequence> tariffAdapter = ArrayAdapter.createFromResource(this,
-                R.array.tariffs, android.R.layout.simple_spinner_item);
 
-        tariffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        spinner_Tariff.setAdapter(tariffAdapter);
 
     }
 

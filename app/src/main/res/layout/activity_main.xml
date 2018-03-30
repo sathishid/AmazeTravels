@@ -90,16 +90,7 @@
 
 
                 />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Choose a Tariff"/>
-            <Spinner
-                android:id="@+id/spinner_tariff"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:minHeight="45dp"/>
+
         </LinearLayout>
         <android.support.v7.widget.AppCompatButton
             android:layout_width="fill_parent"

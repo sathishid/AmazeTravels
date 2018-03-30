@@ -11,6 +11,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
+import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
+import ara.com.amazetravels.ara.com.amazetravles.http.HttpResponse;
+import ara.com.amazetravels.ara.com.utils.AppConstants;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -19,10 +23,14 @@ public class LoginActivity extends AppCompatActivity {
     private static final int REQUEST_SIGNUP = 0;
 
 
-    @BindView(R.id.input_email) EditText _emailText;
-    @BindView(R.id.input_password) EditText _passwordText;
-    @BindView(R.id.btn_login) Button _loginButton;
-    @BindView(R.id.link_signup) TextView _signupLink;
+    @BindView(R.id.input_login_mobile)
+    EditText _login_mobile;
+    @BindView(R.id.input_password)
+    EditText _passwordText;
+    @BindView(R.id.btn_login)
+    Button _loginButton;
+    @BindView(R.id.link_signup)
+    TextView _signupLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +56,8 @@ public class LoginActivity extends AppCompatActivity {
                 overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
         });
-
     }
+
     public void login() {
         Log.d(TAG, "Login");
 
@@ -66,10 +74,41 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
-        String email = _emailText.getText().toString();
+        String mobile = _login_mobile.getText().toString();
         String password = _passwordText.getText().toString();
 
-        // TODO: Implement your own authentication logic here.
+        //Sending the new user details to Server.
+        try {
+            final HttpRequest httpRequest = new HttpRequest();
+
+            httpRequest.setUrl(AppConstants.getUserValidateUrl());
+
+            httpRequest.getParams().put("mobileno", mobile);
+            httpRequest.getParams().put("password", password);
+            httpRequest.setMethodtype(HttpRequest.POST);
+
+            new HttpCaller() {
+                @Override
+                public void onResponse(HttpResponse response) {
+
+                    super.onResponse(response);
+                    progressDialog.dismiss();
+
+                    if (response.getStatus() == HttpResponse.ERROR) {
+                        Log.e("Customer Login Failed", response.getMesssage());
+                        Toast.makeText(LoginActivity.this, response.getMesssage(), Toast.LENGTH_LONG);
+                        onLoginFailed();
+                    } else {
+                        Log.i("Customer Add Success", response.getMesssage());
+                        onLoginSuccess();
+                    }
+
+                }
+            }.execute(httpRequest);
+        } catch (Exception exception) {
+            Toast.makeText(LoginActivity.this, exception.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e("URL Malfunction :", exception.getMessage());
+        }
 
 
     }
@@ -104,14 +143,14 @@ public class LoginActivity extends AppCompatActivity {
     public boolean validate() {
         boolean valid = true;
 
-        String email = _emailText.getText().toString();
+        String mobile = _login_mobile.getText().toString();
         String password = _passwordText.getText().toString();
 
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailText.setError("Enter a valid EMail address");
+        if (mobile.isEmpty() || mobile.length() != 10) {
+            _login_mobile.setError("Enter Valid Mobile Number");
             valid = false;
         } else {
-            _emailText.setError(null);
+            _login_mobile.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
