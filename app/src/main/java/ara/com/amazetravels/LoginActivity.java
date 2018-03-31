@@ -11,6 +11,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import ara.com.amazetravels.ara.com.amazetravels.models.User;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpResponse;
@@ -62,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "Login");
 
         if (!validate()) {
-            onLoginFailed();
+            onLoginFailed(null);
             return;
         }
 
@@ -95,12 +99,10 @@ public class LoginActivity extends AppCompatActivity {
                     progressDialog.dismiss();
 
                     if (response.getStatus() == HttpResponse.ERROR) {
-                        Log.e("Customer Login Failed", response.getMesssage());
-                        Toast.makeText(LoginActivity.this, response.getMesssage(), Toast.LENGTH_LONG);
-                        onLoginFailed();
+                        onLoginFailed(response);
                     } else {
-                        Log.i("Customer Add Success", response.getMesssage());
-                        onLoginSuccess();
+
+                        onLoginSuccess(response);
                     }
 
                 }
@@ -129,15 +131,35 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    public void onLoginSuccess() {
-        _loginButton.setEnabled(true);
-        finish();
+    public void onLoginSuccess(HttpResponse response) {
+        try {
+            JSONArray jsonArray = new JSONArray(response.getMesssage());
+            JSONObject jsonObject = jsonArray.getJSONObject(0);
+            _loginButton.setEnabled(true);
+            if (jsonObject.getString(AppConstants.LOGIN_RESULT)
+                    .compareToIgnoreCase(AppConstants.SUCCESS_MESSAGE) != 0) {
+                Toast.makeText(getBaseContext(), "Invalid Mobile or Password!", Toast.LENGTH_LONG).show();
+                return;
+            }
+            Log.i("Customer Add Success", response.getMesssage());
+
+            AppConstants.setCustomer(jsonObject);
+            finish();
+        } catch (Exception e) {
+            Log.e("On Login Success", e.getMessage());
+            Toast.makeText(LoginActivity.this, "Something Went Wrong,Contact Support", Toast.LENGTH_LONG);
+        }
     }
 
-    public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
 
+
+    public void onLoginFailed(HttpResponse response) {
         _loginButton.setEnabled(true);
+        if (response != null) {
+            Toast.makeText(LoginActivity.this, "Something Went Wrong! Please check the network connection.", Toast.LENGTH_SHORT).show();
+            Log.e("Customer Login Failed", response.getMesssage());
+        }
+
     }
 
     public boolean validate() {

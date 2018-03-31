@@ -38,7 +38,6 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
         HttpURLConnection urlConnection = null;
         HttpResponse response = null;
         try {
-
             urlConnection = createULRConnection(httpRequest);
             prepareBody(urlConnection, httpRequest);
             response = getResponse(urlConnection);
@@ -102,12 +101,14 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
     private void prepareBody(HttpURLConnection urlConnection, HttpRequest httpRequest) throws
             IOException {
         String requestBody = getDataString(httpRequest.getParams(), httpRequest.getMethodType());
-        OutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream());
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "utf-8"));
-        writer.write(requestBody);
-        writer.flush();
-        writer.close();
-        outputStream.close();
+        if(requestBody!=null) {
+            OutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "utf-8"));
+            writer.write(requestBody);
+            writer.flush();
+            writer.close();
+            outputStream.close();
+        }
     }
 
     private HttpURLConnection createULRConnection(HttpRequest httpRequest) throws

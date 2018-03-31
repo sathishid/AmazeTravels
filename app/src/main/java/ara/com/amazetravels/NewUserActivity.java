@@ -11,6 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import ara.com.amazetravels.ara.com.amazetravels.models.Customer;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
@@ -71,7 +74,7 @@ public class NewUserActivity extends AppCompatActivity {
         Log.d(TAG, "Signup");
 
         if (!validate()) {
-            onSignupFailed();
+            onSignupFailed(null);
             return;
         }
 
@@ -110,10 +113,10 @@ public class NewUserActivity extends AppCompatActivity {
                     if (response.getStatus() == HttpResponse.ERROR) {
                         Log.e("Customer Add Error", response.getMesssage());
                         Toast.makeText(NewUserActivity.this, response.getMesssage(), Toast.LENGTH_LONG);
-                        onSignupFailed();
+                        onSignupFailed(response);
                     } else {
                         Log.i("Customer Add Success", response.getMesssage());
-                        onSignupSuccess();
+                        onSignupSuccess(response);
                     }
                     progressDialog.dismiss();
                 }
@@ -127,15 +130,35 @@ public class NewUserActivity extends AppCompatActivity {
     }
 
 
-    public void onSignupSuccess() {
+    public void onSignupSuccess(HttpResponse response) {
         _signupButton.setEnabled(true);
-        setResult(RESULT_OK, null);
-        finish();
+        try {
+            JSONArray jsonArray = new JSONArray(response.getMesssage());
+            JSONObject jsonObject = jsonArray.getJSONObject(0);
+
+            if (jsonObject.getString(AppConstants.LOGIN_RESULT)
+                    .compareToIgnoreCase(AppConstants.SUCCESS_MESSAGE) != 0) {
+                Toast.makeText(getBaseContext(), "Invalid Mobile or Password!", Toast.LENGTH_LONG).show();
+                return;
+            }
+            Log.i("Customer Add Success", response.getMesssage());
+
+            AppConstants.setCustomer(jsonObject);
+            setResult(RESULT_OK, null);
+            finish();
+        } catch (Exception e) {
+            Log.e("On Login Success", e.getMessage());
+            Toast.makeText(NewUserActivity.this, "Something Went Wrong,Contact Support", Toast.LENGTH_LONG);
+        }
+
     }
 
-    public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "New User creation Failed, Call us!", Toast.LENGTH_LONG).show();
-
+    public void onSignupFailed(HttpResponse response) {
+        if (response != null) {
+            Toast.makeText(NewUserActivity.this, "Something Went Wrong! Please check the network connection.", Toast.LENGTH_SHORT).show();
+            Log.e("Creation Failed", response.getMesssage());
+            Toast.makeText(getBaseContext(), "New User creation Failed, Contact Support!", Toast.LENGTH_LONG).show();
+        }
         _signupButton.setEnabled(true);
     }
 

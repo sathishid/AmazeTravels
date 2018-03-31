@@ -5,15 +5,13 @@ package ara.com.amazetravels.ara.com.amazetravels.models;
  */
 
 public class VehicleType {
+
     int vehicleId;
     String vehicleName;
 
     @Override
     public String toString() {
-        return "VehicleType{" +
-                "vehicleId=" + vehicleId +
-                ", vehicleName='" + vehicleName + '\'' +
-                '}';
+        return vehicleName;
     }
 
     public VehicleType(int vehicleId, String vehicleName) {
