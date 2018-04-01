@@ -11,9 +11,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import ara.com.amazetravels.ara.com.amazetravels.models.Customer;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
@@ -52,7 +49,10 @@ public class NewUserActivity extends AppCompatActivity {
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 signup();
+
+
             }
         });
 
@@ -80,13 +80,6 @@ public class NewUserActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(NewUserActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Creating Account...");
-        progressDialog.show();
-
-
         String name = _nameText.getText().toString();
         String address = _addressText.getText().toString();
         String area = _areaText.getText().toString();
@@ -105,9 +98,20 @@ public class NewUserActivity extends AppCompatActivity {
             httpRequest.setMethodtype(HttpRequest.POST);
 
             new HttpCaller() {
+                ProgressDialog progressDialog;
+
+                @Override
+                public void onPre() {
+                    progressDialog = new ProgressDialog(NewUserActivity.this,
+                            R.style.AppTheme_Dark_Dialog);
+                    progressDialog.setIndeterminate(true);
+                    progressDialog.setMessage("Creating Account...");
+                    progressDialog.show();
+                }
+
                 @Override
                 public void onResponse(HttpResponse response) {
-
+                    progressDialog.dismiss();
                     super.onResponse(response);
 
                     if (response.getStatus() == HttpResponse.ERROR) {
@@ -115,40 +119,41 @@ public class NewUserActivity extends AppCompatActivity {
                         Toast.makeText(NewUserActivity.this, response.getMesssage(), Toast.LENGTH_LONG);
                         onSignupFailed(response);
                     } else {
+
                         Log.i("Customer Add Success", response.getMesssage());
                         onSignupSuccess(response);
                     }
-                    progressDialog.dismiss();
+
                 }
             }.execute(httpRequest);
         } catch (Exception exception) {
             Toast.makeText(NewUserActivity.this, exception.getMessage(), Toast.LENGTH_SHORT).show();
             Log.e("URL Malfunction :", exception.getMessage());
         }
-
-
     }
 
 
     public void onSignupSuccess(HttpResponse response) {
         _signupButton.setEnabled(true);
-        try {
-            JSONArray jsonArray = new JSONArray(response.getMesssage());
-            JSONObject jsonObject = jsonArray.getJSONObject(0);
 
-            if (jsonObject.getString(AppConstants.LOGIN_RESULT)
+        try {
+            String strResponse = response.getMesssage();
+
+            if (strResponse
                     .compareToIgnoreCase(AppConstants.SUCCESS_MESSAGE) != 0) {
-                Toast.makeText(getBaseContext(), "Invalid Mobile or Password!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), strResponse, Toast.LENGTH_LONG).show();
                 return;
             }
             Log.i("Customer Add Success", response.getMesssage());
 
-            AppConstants.setCustomer(jsonObject);
-            setResult(RESULT_OK, null);
+
+            Intent resultIntent = new Intent();
+            setResult(RESULT_OK, resultIntent);
             finish();
+
         } catch (Exception e) {
             Log.e("On Login Success", e.getMessage());
-            Toast.makeText(NewUserActivity.this, "Something Went Wrong,Contact Support", Toast.LENGTH_LONG);
+            Toast.makeText(NewUserActivity.this, "Something Went Wrong,Contact Support", Toast.LENGTH_LONG).show();
         }
 
     }

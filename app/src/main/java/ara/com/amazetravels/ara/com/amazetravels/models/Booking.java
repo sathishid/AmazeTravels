@@ -34,8 +34,6 @@ public class Booking {
         bookingHasMap.put("customerid", this.customerId+"");
         bookingHasMap.put("mobileno", this.mobile);
         bookingHasMap.put("vehicletype", this.vehicleTypeId+"");
-
-
         return bookingHasMap;
     }
 }

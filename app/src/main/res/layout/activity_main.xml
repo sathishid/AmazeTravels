@@ -36,6 +36,7 @@
             android:checkMark="@android:drawable/checkbox_off_background"
             android:text="@string/for_other_user"
             android:textStyle="normal"
+            android:onClick="onForFamilyClicked"
             />
 
         <LinearLayout

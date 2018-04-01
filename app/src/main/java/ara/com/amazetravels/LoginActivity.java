@@ -14,7 +14,6 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import ara.com.amazetravels.ara.com.amazetravels.models.User;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpResponse;
@@ -56,7 +55,6 @@ public class LoginActivity extends AppCompatActivity {
                 // Start the Signup activity
                 Intent intent = new Intent(getApplicationContext(), NewUserActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);
-                finish();
                 overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
             }
         });
@@ -72,11 +70,7 @@ public class LoginActivity extends AppCompatActivity {
 
         _loginButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
-        progressDialog.show();
+
 
         String mobile = _login_mobile.getText().toString();
         String password = _passwordText.getText().toString();
@@ -92,6 +86,15 @@ public class LoginActivity extends AppCompatActivity {
             httpRequest.setMethodtype(HttpRequest.POST);
 
             new HttpCaller() {
+                ProgressDialog progressDialog;
+                @Override
+                public void onPre(){
+                    progressDialog = new ProgressDialog(LoginActivity.this,
+                            R.style.AppTheme_Dark_Dialog);
+                    progressDialog.setIndeterminate(true);
+                    progressDialog.setMessage("Authenticating...");
+                    progressDialog.show();
+                }
                 @Override
                 public void onResponse(HttpResponse response) {
 
@@ -141,16 +144,17 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(getBaseContext(), "Invalid Mobile or Password!", Toast.LENGTH_LONG).show();
                 return;
             }
-            Log.i("Customer Add Success", response.getMesssage());
+            Log.i("LoginSuccess", response.getMesssage());
 
             AppConstants.setCustomer(jsonObject);
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
             finish();
         } catch (Exception e) {
             Log.e("On Login Success", e.getMessage());
             Toast.makeText(LoginActivity.this, "Something Went Wrong,Contact Support", Toast.LENGTH_LONG);
         }
     }
-
 
 
     public void onLoginFailed(HttpResponse response) {

@@ -2,15 +2,12 @@ package ara.com.amazetravels;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -23,9 +20,8 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-
 import ara.com.amazetravels.ara.com.amazetravels.models.Booking;
+import ara.com.amazetravels.ara.com.amazetravels.models.User;
 import ara.com.amazetravels.ara.com.amazetravels.models.VehicleType;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
@@ -61,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
         populateSpinner();
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -91,20 +85,17 @@ public class MainActivity extends AppCompatActivity {
     private void populateSpinner() {
 
         initVehicleTypes();
-
+        User user = AppConstants.getCurrentUser();
+        input_OtherUser.setText(user.getUserName());
+        input_OtherMobile.setText(user.getMobileNo());
 
     }
 
     public void onForFamilyClicked(View view) {
         boolean isChecked = ((CheckBox) view).isChecked();
         if (isChecked) {
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            layout_OtherUser.setLayoutParams(layoutParams);
-            scrollView.requestLayout();
-            scrollView.invalidate();
-
+            input_OtherUser.setText("");
+            input_OtherMobile.setText("");
         }
     }
 
@@ -118,10 +109,10 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(HttpResponse response) {
                 super.onResponse(response);
                 if (response.getStatus() == HttpResponse.ERROR) {
-                    Log.e("Customer Add Error", response.getMesssage());
+                    Log.e("Vehicle Add Issue", response.getMesssage());
                     button_booking.setEnabled(true);
                 } else {
-                    Log.i("Customer Add Success", response.getMesssage());
+                    Log.i("Vehicle Add Success", response.getMesssage());
                     updateVehicleTypes(response);
                     button_booking.setEnabled(true);
                 }
@@ -177,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             final HttpRequest httpRequest = new HttpRequest();
 
-            httpRequest.setUrl(AppConstants.getAddCustomerUrl());
+            httpRequest.setUrl(AppConstants.getBookingApi());
 
             httpRequest.setParams(booking.toHashMap());
             httpRequest.setMethodtype(HttpRequest.POST);
@@ -213,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onBookingFailure(HttpResponse response) {
-        if(response!=null) {
+        if (response != null) {
             Toast.makeText(MainActivity.this, "Something Went Wrong! Please check the network connection.", Toast.LENGTH_SHORT).show();
         }
         button_booking.setEnabled(true);
@@ -238,10 +229,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void clearAll() {
-        checkBox_otherUser.setChecked(false);
-        input_OtherMobile.setText("");
-        input_OtherUser.setText("");
+        if (checkBox_otherUser.isChecked()) {
+            checkBox_otherUser.setChecked(false);
+            input_OtherMobile.setText("");
+            input_OtherUser.setText("");
+        }
     }
+
     public boolean validate() {
         boolean valid = true;
 
@@ -256,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             input_OtherUser.setError(null);
         }
-
 
 
         if (checkBox_otherUser.isChecked() && (mobile.isEmpty() || mobile.length() != 10)) {

@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,9 +29,18 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
 
     private static final String UTF_8 = "UTF-8";
 
-
     @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        onPre();
+    }
 
+
+
+    public void onPre(){
+
+    }
+    @Override
     protected HttpResponse doInBackground(HttpRequest... httpRequests) {
         HttpRequest httpRequest = httpRequests[0];
         HttpURLConnection urlConnection = null;
