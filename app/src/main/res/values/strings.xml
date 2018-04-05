@@ -6,5 +6,10 @@
     <string name="dialog_message_booked">Successfully Booked your Ride.
        Our Support engineer will contact you shortly.</string>
 
-    <string name="dialog_title_booked">Booking Success</string>
+    <string name="ok_button_text">OK</string>
+    <string name="book_ride_text">Book Ride</string>
+    <string name="home_message"> We primarily focusing on the needs of our customers from
+    Chennai and truly enjoys good patronage from them.
+</string>
+
 </resources>

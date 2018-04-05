@@ -1,5 +1,7 @@
 package ara.com.amazetravels.ara.com.amazetravles.http;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -19,6 +21,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import ara.com.amazetravels.LoginActivity;
+import ara.com.amazetravels.R;
+
 
 /**
  * Created by sathishbabur on 1/31/2018.
@@ -28,11 +33,23 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
 
 
     private static final String UTF_8 = "UTF-8";
+    Context context;
+    ProgressDialog progressDialog;
+    public HttpCaller(Context context){
+        super();
+       this.context=context;
+
+
+    }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        onPre();
+        progressDialog = new ProgressDialog(context,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Authenticating...");
+        progressDialog.show();
     }
 
 
@@ -69,7 +86,7 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
     protected void onPostExecute(HttpResponse response) {
 
         super.onPostExecute(response);
-
+        progressDialog.dismiss();
         onResponse(response);
 
     }

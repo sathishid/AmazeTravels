@@ -2,9 +2,11 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+   >
 
     <LinearLayout
+        android:id="@+id/layout_linear_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -14,9 +16,9 @@
 
         <TextView
 
+            style="@style/logo"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/logo" />
+            android:layout_height="wrap_content" />
 
         <Space
             android:layout_width="match_parent"
@@ -34,8 +36,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Mobile Number"
-                android:inputType="number"
-                 />
+                android:inputType="number" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -68,7 +69,7 @@
             android:layout_marginBottom="24dp"
             android:gravity="center"
             android:text="No account yet? Create one"
-            android:textSize="16dip" />
+            android:textSize="16sp" />
 
     </LinearLayout>
 </ScrollView>

@@ -11,7 +11,7 @@ public class Booking {
 
     private int bookingId;
 
-    private int customerId;
+    private User customer;
 
     private String userName;
 
@@ -19,9 +19,9 @@ public class Booking {
 
     private int vehicleTypeId;
 
-    public Booking(int bookingId, int customerId, String userName, String mobile, int vehicleTypeId) {
+    public Booking(int bookingId, User customer, String userName, String mobile, int vehicleTypeId) {
         this.bookingId = bookingId;
-        this.customerId = customerId;
+        this.customer = customer;
         this.userName = userName;
         this.mobile = mobile;
         this.vehicleTypeId = vehicleTypeId;
@@ -31,7 +31,7 @@ public class Booking {
         HashMap<String, String> bookingHasMap = new HashMap<>(5);
         bookingHasMap.put("bookingId", this.bookingId + "");
         bookingHasMap.put("name", this.userName);
-        bookingHasMap.put("customerid", this.customerId+"");
+        bookingHasMap.put("customerid", customer.getUserId()+"");
         bookingHasMap.put("mobileno", this.mobile);
         bookingHasMap.put("vehicletype", this.vehicleTypeId+"");
         return bookingHasMap;

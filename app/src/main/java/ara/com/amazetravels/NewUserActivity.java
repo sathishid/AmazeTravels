@@ -46,15 +46,7 @@ public class NewUserActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        _signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                signup();
-
-
-            }
-        });
 
         _loginLink.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,10 +60,10 @@ public class NewUserActivity extends AppCompatActivity {
         });
     }
 
-    public void signup() {
+    public void signUp(View view) {
 
 
-        Log.d(TAG, "Signup");
+        Log.d(TAG, "SignUp");
 
         if (!validate()) {
             onSignupFailed(null);
@@ -97,21 +89,11 @@ public class NewUserActivity extends AppCompatActivity {
             httpRequest.setParams(customer.toHashMap());
             httpRequest.setMethodtype(HttpRequest.POST);
 
-            new HttpCaller() {
-                ProgressDialog progressDialog;
-
-                @Override
-                public void onPre() {
-                    progressDialog = new ProgressDialog(NewUserActivity.this,
-                            R.style.AppTheme_Dark_Dialog);
-                    progressDialog.setIndeterminate(true);
-                    progressDialog.setMessage("Creating Account...");
-                    progressDialog.show();
-                }
+            new HttpCaller(NewUserActivity.this) {
 
                 @Override
                 public void onResponse(HttpResponse response) {
-                    progressDialog.dismiss();
+
                     super.onResponse(response);
 
                     if (response.getStatus() == HttpResponse.ERROR) {

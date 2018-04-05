@@ -17,6 +17,7 @@ public class AppConstants {
     public static final String USER_VALIDATE_API = "customerlogin";
     private static final String VEHICLE_TYPE_API = "vehiclelist";
     private static final String BOOKING_API="booking";
+    public static final int REQUEST_BOOKING=0;
 
     public static String getAddCustomerUrl() {
         return URL_FEED + ADD_CUSTOMER_API;

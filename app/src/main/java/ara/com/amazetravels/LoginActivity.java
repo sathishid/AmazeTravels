@@ -3,7 +3,9 @@ package ara.com.amazetravels;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,17 +16,20 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import ara.com.amazetravels.ara.com.amazetravels.models.VehicleType;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpResponse;
 import ara.com.amazetravels.ara.com.utils.AppConstants;
+import ara.com.amazetravels.ara.com.utils.VehicleTypeAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-
+    @BindView(R.id.layout_linear_root)
+    View rootLayout;
 
     @BindView(R.id.input_login_mobile)
     EditText _login_mobile;
@@ -71,7 +76,6 @@ public class LoginActivity extends AppCompatActivity {
         _loginButton.setEnabled(false);
 
 
-
         String mobile = _login_mobile.getText().toString();
         String password = _passwordText.getText().toString();
 
@@ -85,21 +89,13 @@ public class LoginActivity extends AppCompatActivity {
             httpRequest.getParams().put("password", password);
             httpRequest.setMethodtype(HttpRequest.POST);
 
-            new HttpCaller() {
-                ProgressDialog progressDialog;
-                @Override
-                public void onPre(){
-                    progressDialog = new ProgressDialog(LoginActivity.this,
-                            R.style.AppTheme_Dark_Dialog);
-                    progressDialog.setIndeterminate(true);
-                    progressDialog.setMessage("Authenticating...");
-                    progressDialog.show();
-                }
+            new HttpCaller(LoginActivity.this) {
+
+
                 @Override
                 public void onResponse(HttpResponse response) {
 
                     super.onResponse(response);
-                    progressDialog.dismiss();
 
                     if (response.getStatus() == HttpResponse.ERROR) {
                         onLoginFailed(response);
@@ -123,7 +119,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-
+                Snackbar snackbar = Snackbar.make(rootLayout,"User Created Successfully",Snackbar.LENGTH_SHORT);
+                snackbar.show();
             }
         }
     }
@@ -147,15 +144,17 @@ public class LoginActivity extends AppCompatActivity {
             Log.i("LoginSuccess", response.getMesssage());
 
             AppConstants.setCustomer(jsonObject);
-            Intent intent = new Intent(this, MainActivity.class);
+
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
+
+
         } catch (Exception e) {
             Log.e("On Login Success", e.getMessage());
             Toast.makeText(LoginActivity.this, "Something Went Wrong,Contact Support", Toast.LENGTH_LONG);
         }
     }
-
 
     public void onLoginFailed(HttpResponse response) {
         _loginButton.setEnabled(true);
