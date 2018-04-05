@@ -64,10 +64,12 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
         HttpResponse response = null;
         try {
             urlConnection = createULRConnection(httpRequest);
+            urlConnection.setConnectTimeout(5000);
             prepareBody(urlConnection, httpRequest);
             response = getResponse(urlConnection);
 
         } catch (Exception e) {
+            progressDialog.dismiss();
             Log.e("Http URL", e.toString());
             response=new HttpResponse();
             response.setError();
