@@ -30,7 +30,7 @@
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="@dimen/amaze_logo_space" />
+                android:minHeight="30dp" />
 
             <CheckBox
                 android:id="@+id/checkbox_other_user"
@@ -84,7 +84,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Choose a Vehicle Type" />
+                    android:text="@string/text_choose_a_vehicle_type" />
 
                 <Spinner
                     android:id="@+id/spinner_vehicle_type"
@@ -92,10 +92,95 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:minHeight="45dp"
+                    android:minHeight="45dp" />
 
-                    />
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                   >
 
+                    <EditText
+                        android:id="@+id/input_place"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/text_place"
+                        android:layout_marginTop="@dimen/boooking_row_spacing"
+                        android:inputType="textAutoComplete" />
+                </android.support.design.widget.TextInputLayout>
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:rowCount="3"
+
+                    >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_column="0"
+                        android:layout_marginTop="@dimen/boooking_row_spacing"
+                        android:layout_row="1"
+                        android:text="@string/text_date" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_booking_date"
+                        android:onClick="bookingDate_OnClick"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_column="1"
+                        android:layout_gravity="right"
+                        android:layout_marginTop="@dimen/boooking_row_spacing"
+                        android:layout_row="1">
+
+                        <TextView
+                            android:id="@+id/tv_booking_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+
+                            android:text="@string/text_dateFormat" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:contentDescription="@string/text_right_arrow"
+                            android:src="@drawable/icon_right_arrow" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_column="0"
+                        android:layout_marginTop="@dimen/boooking_row_spacing"
+                        android:layout_row="2"
+                        android:text="@string/text_time" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_booking_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_column="1"
+                        android:layout_gravity="right"
+                        android:layout_marginTop="@dimen/boooking_row_spacing"
+                        android:layout_row="2"
+                        android:onClick="bookingTime_OnClick"
+                        >
+
+                        <TextView
+                            android:id="@+id/tv_booking_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="11:00 AM" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:contentDescription="@string/text_right_arrow"
+                            android:src="@drawable/icon_right_arrow" />
+                    </LinearLayout>
+                </GridLayout>
             </LinearLayout>
 
             <android.support.v7.widget.AppCompatButton

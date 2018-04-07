@@ -9,8 +9,6 @@ import java.util.HashMap;
 
 public class Customer implements Serializable {
 
-
-
     private int customerId;
 
     private String name;
@@ -39,6 +37,30 @@ public class Customer implements Serializable {
                 '}';
     }
 
+    public int getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUserName() {
+        return name;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
     public Customer(int customerId, String name, String password, String mobile,
                     String address, String area, String city) {
         this.customerId = customerId;
@@ -48,6 +70,10 @@ public class Customer implements Serializable {
         this.address = address;
         this.area = area;
         this.city = city;
+    }
+
+    public Customer(int customerId, String name, String mobile) {
+        this(customerId, name, null, mobile, null, null, null);
     }
 
     public HashMap<String, String> toHashMap() {

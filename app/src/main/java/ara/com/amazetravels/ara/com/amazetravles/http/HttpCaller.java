@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,9 +37,10 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
     private static final String UTF_8 = "UTF-8";
     Context context;
     ProgressDialog progressDialog;
-    public HttpCaller(Context context){
+
+    public HttpCaller(Context context) {
         super();
-       this.context=context;
+        this.context = context;
 
 
     }
@@ -53,10 +56,10 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
     }
 
 
-
-    public void onPre(){
+    public void onPre() {
 
     }
+
     @Override
     protected HttpResponse doInBackground(HttpRequest... httpRequests) {
         HttpRequest httpRequest = httpRequests[0];
@@ -64,17 +67,23 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
         HttpResponse response = null;
         try {
             urlConnection = createULRConnection(httpRequest);
-            urlConnection.setConnectTimeout(5000);
+
             prepareBody(urlConnection, httpRequest);
             response = getResponse(urlConnection);
 
-        } catch (Exception e) {
+
+        } catch (
+                Exception e)
+
+        {
             progressDialog.dismiss();
             Log.e("Http URL", e.toString());
-            response=new HttpResponse();
+            response = new HttpResponse();
             response.setError();
             response.setMesssage(e.getMessage());
-        } finally {
+        } finally
+
+        {
             if (urlConnection != null)
                 urlConnection.disconnect();
         }
@@ -128,7 +137,7 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
     private void prepareBody(HttpURLConnection urlConnection, HttpRequest httpRequest) throws
             IOException {
         String requestBody = getDataString(httpRequest.getParams(), httpRequest.getMethodType());
-        if(requestBody!=null) {
+        if (requestBody != null) {
             OutputStream outputStream = new BufferedOutputStream(urlConnection.getOutputStream());
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, "utf-8"));
             writer.write(requestBody);
@@ -137,6 +146,8 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
             outputStream.close();
         }
     }
+
+
 
     private HttpURLConnection createULRConnection(HttpRequest httpRequest) throws
             IOException {

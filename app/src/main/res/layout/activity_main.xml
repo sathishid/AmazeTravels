@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-       android:layout_marginTop="70dp"
+       android:layout_marginTop="20dp"
         >
 
         <TextView
@@ -31,13 +31,27 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="@string/home_message"
+    android:textSize="18sp"
     android:layout_marginTop="70dp"/>
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="btn_emergency_booking_OnClick"
+            android:layout_marginTop="60dp"
+            android:text="@string/emergency_book_ride_text" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="btn_voice_booking_OnClick"
+            android:layout_marginTop="10dp"
+            android:text="@string/voice_book_ride_text" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:onClick="bookRide_OnClick"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="10dp"
             android:text="@string/book_ride_text" />
     </LinearLayout>
 

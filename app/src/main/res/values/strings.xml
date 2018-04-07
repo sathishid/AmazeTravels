@@ -8,8 +8,18 @@
 
     <string name="ok_button_text">OK</string>
     <string name="book_ride_text">Book Ride</string>
+    <string name="voice_book_ride_text">Voice Booking</string>
+    <string name="emergency_book_ride_text">Emergency Booking</string>
     <string name="home_message"> We primarily focusing on the needs of our customers from
     Chennai and truly enjoys good patronage from them.
 </string>
-
+<string name="text_button_capture">Capture voice</string>
+    <string name="text_date">Date</string>
+    <string name="text_dateFormat">DD/MM/YYYY</string>
+    <string name="text_time_format">11:00 AM</string>
+    <string name="text_right_arrow">Right Arrow</string>
+    <string name="text_place">Place</string>
+    <string name="text_time">Time</string>
+    <string name="text_choose_a_vehicle_type">Choose a Vehicle Type</string>
+    <string name="something_went_wrong">"Something Went Wrong, Check network connection"</string>
 </resources>

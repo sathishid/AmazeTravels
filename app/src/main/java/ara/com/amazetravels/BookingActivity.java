@@ -1,27 +1,34 @@
 package ara.com.amazetravels;
 
-import android.app.ProgressDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import ara.com.amazetravels.ara.com.amazetravels.models.Booking;
+import ara.com.amazetravels.ara.com.amazetravels.models.BookingTypes;
 import ara.com.amazetravels.ara.com.amazetravels.models.VehicleType;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
@@ -46,7 +53,13 @@ public class BookingActivity extends AppCompatActivity {
     Spinner spinner_VehicleType;
     @BindView(R.id.btn_booking)
     Button button_booking;
+    @BindView(R.id.tv_booking_time)
+    TextView bookingTime;
+    @BindView(R.id.tv_booking_date)
+    TextView bookingDate;
 
+    @BindView(R.id.input_place)
+    EditText place;
     SpinnerAdapter vehicleTypes_spinnerAdapter;
 
     @Override
@@ -84,7 +97,7 @@ public class BookingActivity extends AppCompatActivity {
         input_OtherUser.setEnabled(false);
         input_OtherMobile.setEnabled(false);
         input_OtherUser.setText(AppConstants.getCurrentUser().getUserName());
-        input_OtherMobile.setText(AppConstants.getCurrentUser().getMobileNo());
+        input_OtherMobile.setText(AppConstants.getCurrentUser().getMobile());
 
         initVehicleTypes();
     }
@@ -99,7 +112,7 @@ public class BookingActivity extends AppCompatActivity {
 
         } else {
             input_OtherUser.setText(AppConstants.getCurrentUser().getUserName());
-            input_OtherMobile.setText(AppConstants.getCurrentUser().getMobileNo());
+            input_OtherMobile.setText(AppConstants.getCurrentUser().getMobile());
             input_OtherMobile.setEnabled(false);
             input_OtherUser.setEnabled(false);
 
@@ -171,12 +184,7 @@ public class BookingActivity extends AppCompatActivity {
             otherUser = input_OtherUser.getText().toString();
             otherMobile = input_OtherMobile.getText().toString();
         }
-        Booking booking = new Booking(
-                1,
-                AppConstants.getCurrentUser(),
-                otherUser,
-                otherMobile,
-                ((VehicleType) spinner_VehicleType.getSelectedItem()).getVehicleId());
+        Booking booking = new Booking(AppConstants.getCurrentUser(), BookingTypes.NON_VOICE);
         try {
             final HttpRequest httpRequest = new HttpRequest();
 
@@ -185,11 +193,7 @@ public class BookingActivity extends AppCompatActivity {
             httpRequest.setParams(booking.toHashMap());
             httpRequest.setMethodtype(HttpRequest.POST);
 
-            final ProgressDialog progressDialog = new ProgressDialog(BookingActivity.this,
-                    R.style.AppTheme_Dark_Dialog);
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Creating Account...");
-            progressDialog.show();
+
 
             new HttpCaller(BookingActivity.this) {
                 @Override
@@ -205,7 +209,7 @@ public class BookingActivity extends AppCompatActivity {
                         Log.i("Booking Ride Success", response.getMesssage());
                         onBookingSuccess(response);
                     }
-                    progressDialog.dismiss();
+
                 }
             }.execute(httpRequest);
         } catch (Exception exception) {
@@ -252,6 +256,8 @@ public class BookingActivity extends AppCompatActivity {
         String name = input_OtherUser.getText().toString();
 
         String mobile = input_OtherMobile.getText().toString();
+        String strPlace = place.getText().toString();
+        String strDate = bookingDate.getText().toString();
 
 
         if (checkBox_otherUser.isChecked() && (name.isEmpty() || name.length() < 3)) {
@@ -269,7 +275,70 @@ public class BookingActivity extends AppCompatActivity {
             input_OtherMobile.setError(null);
         }
 
+        if (strPlace.isEmpty() || strPlace.length() >= 4) {
+            place.setError("Enter Valid Place");
+            valid = false;
+        } else {
+            place.setError(null);
+        }
+
+        if (strDate.isEmpty() || strDate.equals(R.string.text_dateFormat)) {
+            bookingDate.setError("Not valid date");
+            valid = false;
+        } else {
+            bookingDate.setError(null);
+        }
 
         return valid;
     }
+
+    private void showDatePicker(DatePickerDialog.OnDateSetListener onDateSetListener) {
+
+        Calendar today = Calendar.getInstance();
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, onDateSetListener,
+                today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DATE));
+        datePickerDialog.show();
+    }
+
+    public void bookingDate_OnClick(View view) {
+        DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                Calendar calendar = new GregorianCalendar(year, month, day);
+                bookingDate.setTag(calendar);
+
+                bookingDate.setText(AppConstants.getStringDate(calendar));
+            }
+        };
+        showDatePicker(myDateListener);
+
+    }
+
+    private void showTimePicker(TimePickerDialog.OnTimeSetListener onTimeSetListener) {
+        Calendar calendar = Calendar.getInstance();
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, onTimeSetListener,
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE), false);
+        timePickerDialog.show();
+
+    }
+
+    public void bookingTime_OnClick(View view) {
+        TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+                bookingTime.setTag(calendar);
+                bookingTime.setText(AppConstants.getStringTime(calendar));
+            }
+        };
+        showTimePicker(onTimeSetListener);
+    }
+
+
+
 }
