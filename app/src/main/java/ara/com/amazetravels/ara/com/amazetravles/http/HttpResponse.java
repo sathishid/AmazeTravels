@@ -35,5 +35,15 @@ public class HttpResponse {
         this.messsage = messsage;
     }
 
+    public void setSuccessMessage(String messsge){
+        setSuccess();
+        setMesssage(messsge);
+    }
+
+    public  void setErrorMessage(String messsage){
+        setError();
+        setMesssage(messsage);
+    }
+
 
 }

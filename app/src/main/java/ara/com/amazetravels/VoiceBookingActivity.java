@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.Toast;
@@ -39,10 +40,13 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class VoiceBookingActivity extends AppCompatActivity {
     private final String TAG = "Voice Booking Activity";
+    private final String AUDIO_EXTENSION = ".mp3";
+
 
     Button buttonStart;
 
     Button buttonStop;
+    Button buttonBookVoice;
     ScrollView scrollViewRoot;
     Button buttonPlayLastRecordAudio;
 
@@ -65,12 +69,13 @@ public class VoiceBookingActivity extends AppCompatActivity {
         buttonPlayLastRecordAudio = (Button) findViewById(R.id.btn_play);
         buttonStopPlayingRecording = (Button) findViewById(R.id.btn_stop_recording);
         scrollViewRoot = (ScrollView) findViewById(R.id.layout_scroll_view_voice_book);
+        buttonBookVoice = (Button) findViewById(R.id.btn_book_voice);
         buttonStop.setEnabled(false);
         buttonPlayLastRecordAudio.setEnabled(false);
         buttonStopPlayingRecording.setEnabled(false);
 
         random = new Random();
-
+        buttonBookVoice.setEnabled(false);
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,7 +84,7 @@ public class VoiceBookingActivity extends AppCompatActivity {
 
                     AudioSavePathInDevice =
                             Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
-                                    CreateRandomAudioFileName(5) + "AudioRecording.3gp";
+                                    CreateRandomAudioFileName(5) + "AudioRecording.mp3";
 
                     MediaRecorderReady();
 
@@ -110,6 +115,7 @@ public class VoiceBookingActivity extends AppCompatActivity {
         buttonStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                buttonBookVoice.setEnabled(true);
                 mediaRecorder.stop();
                 buttonStop.setEnabled(false);
                 buttonPlayLastRecordAudio.setEnabled(true);
@@ -125,7 +131,7 @@ public class VoiceBookingActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) throws IllegalArgumentException,
                     SecurityException, IllegalStateException {
-
+                buttonBookVoice.setEnabled(false);
                 buttonStop.setEnabled(false);
                 buttonStart.setEnabled(false);
                 buttonStopPlayingRecording.setEnabled(true);
@@ -148,6 +154,7 @@ public class VoiceBookingActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 buttonStop.setEnabled(false);
+                buttonBookVoice.setEnabled(true);
                 buttonStart.setEnabled(true);
                 buttonStopPlayingRecording.setEnabled(false);
                 buttonPlayLastRecordAudio.setEnabled(true);
@@ -166,7 +173,7 @@ public class VoiceBookingActivity extends AppCompatActivity {
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.MPEG_4);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mediaRecorder.setOutputFile(AudioSavePathInDevice);
     }
 
@@ -220,28 +227,26 @@ public class VoiceBookingActivity extends AppCompatActivity {
 
     public void voice_book_ride_onClick(View view) {
         try {
-            FileInputStream inputStream = new FileInputStream(AudioSavePathInDevice);
-            byte[] bytes = new byte[inputStream.available()];
-            inputStream.read(bytes);
-            inputStream.close();
+
             Booking booking = new Booking(AppConstants.getCurrentUser()
-                    , BookingTypes.VOICE, bytes);
+                    , BookingTypes.VOICE, AudioSavePathInDevice);
 
             bookRide(booking);
+
         } catch (Exception ex) {
             Snackbar.make(view, ex.getMessage(), Snackbar.LENGTH_LONG);
         }
     }
 
-    private void bookRide(final Booking bookingarg) {
+    private void bookRide(final Booking bookingArg) {
 
-        new ImageUploadTask().execute();
+        new ImageUploadTask().execute(bookingArg);
     }
 
 
     private void onFailure(HttpResponse response) {
         if (response != null) {
-            Toast.makeText(VoiceBookingActivity.this, "Something Went Wrong! Please check the network connection.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(VoiceBookingActivity.this, R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -250,6 +255,10 @@ public class VoiceBookingActivity extends AppCompatActivity {
             showSnackbar(R.string.something_went_wrong);
         }
         if (response.getMesssage().compareToIgnoreCase(AppConstants.SUCCESS_MESSAGE) == 0) {
+            if (AudioSavePathInDevice != null) {
+                File file = new File(AudioSavePathInDevice);
+                file.delete();
+            }
             Intent intent = new Intent();
             intent.putExtra("status", AppConstants.SUCCESS_MESSAGE);
             setResult(RESULT_OK, intent);
@@ -269,26 +278,29 @@ public class VoiceBookingActivity extends AppCompatActivity {
         snackbar.show();
     }
 
-    class ImageUploadTask extends AsyncTask<Void, Void, String> {
+    class ImageUploadTask extends AsyncTask<Booking, Void, HttpResponse> {
         ProgressDialog dialog;
 
         @Override
         protected void onPreExecute() {
             dialog = new ProgressDialog(VoiceBookingActivity.this);
-            dialog.setTitle("Uploading Image...");
+            dialog.setTitle("Uploading Audio...");
             dialog.show();
             super.onPreExecute();
         }
 
         @Override
-        protected String doInBackground(Void... unsued) {
+        protected HttpResponse doInBackground(Booking... bookings) {
+            Booking booking = bookings[0];
+            HttpResponse httpResponse = new HttpResponse();
             OkHttpClient client = new OkHttpClient();
-            File file = new File(AudioSavePathInDevice);
+            File file = new File(booking.getAudioFileName());
             MultipartBody.Builder builder = new MultipartBody.Builder();
             builder.setType(MultipartBody.FORM);
+
             MediaType mediaType = MediaType.parse("audio/mpeg");
             builder.addFormDataPart("record_file", file.getName(), RequestBody.create(mediaType, file));
-            builder.addFormDataPart("customerid", "1");
+            builder.addFormDataPart("customerid", booking.getCustomer().getCustomerId() + "");
             MultipartBody multipartBody = builder.build();
             Request request = new Request.Builder()
                     .url(AppConstants.getBookingApi())
@@ -297,36 +309,27 @@ public class VoiceBookingActivity extends AppCompatActivity {
 
             try {
                 Response response = client.newCall(request).execute();
+                httpResponse.setSuccessMessage(response.body().string());
 
-                return response.body().string();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
+                httpResponse.setErrorMessage(e.getMessage());
             }
-            return null;
+            return httpResponse;
         }
 
         @Override
-        protected void onProgressUpdate(Void... unsued) {
-
-        }
-
-        @Override
-        protected void onPostExecute(String sResponse) {
+        protected void onPostExecute(HttpResponse httpResponse) {
             if (dialog.isShowing())
                 dialog.dismiss();
-            HttpResponse response = new HttpResponse();
-            if (sResponse != null) {
-                dialog.dismiss();
-                Log.e("fa", "----------" + sResponse);
-                response.setSuccess();
-                response.setMesssage(sResponse);
-                onSuccess(response);
+
+            if (httpResponse.getStatus() == HttpResponse.Success) {
+                Log.i(TAG, "----------" + httpResponse.getMesssage());
+                onSuccess(httpResponse);
             } else {
-                dialog.dismiss();
-                Log.e("fa", "----------" + sResponse);
-                response.setError();
-                response.setMesssage(sResponse);
-                onFailure(response);
+
+                Log.e(TAG, "----------" + httpResponse.getMesssage());
+                onFailure(httpResponse);
             }
         }
 

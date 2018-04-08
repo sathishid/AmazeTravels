@@ -38,7 +38,7 @@ public class Booking {
 
     private Calendar appointmentTime;
 
-    private byte[] audio;
+    private String audioFileName;
 
     public BookingTypes getBookingType() {
         return bookingType;
@@ -49,13 +49,13 @@ public class Booking {
     }
 
 
-    public byte[] getAudio() {
-        return audio;
+    public String getAudioFileName() {
+        return audioFileName;
     }
 
-    public Booking(Customer customer, BookingTypes bookingType, byte[] audio) {
+    public Booking(Customer customer, BookingTypes bookingType, String audioFileName) {
         this(customer, bookingType);
-        this.audio = audio;
+        this.audioFileName = audioFileName;
     }
 
     public Booking(Customer customer, BookingTypes bookingType) {
