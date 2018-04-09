@@ -159,7 +159,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginFailed(HttpResponse response) {
         _loginButton.setEnabled(true);
         if (response != null) {
-            Toast.makeText(LoginActivity.this, "Something Went Wrong! Please check the network connection.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, response.getMesssage(), Toast.LENGTH_SHORT).show();
             Log.e("Customer Login Failed", response.getMesssage());
         }
 

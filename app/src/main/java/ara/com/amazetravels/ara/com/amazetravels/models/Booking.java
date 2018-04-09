@@ -1,10 +1,14 @@
 package ara.com.amazetravels.ara.com.amazetravels.models;
 
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.HashMap;
 
 import ara.com.amazetravels.ara.com.utils.AppConstants;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 /**
  * Created by Sathish Babu R on 28-03-2018.
@@ -53,6 +57,22 @@ public class Booking {
         return audioFileName;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
     public Booking(Customer customer, BookingTypes bookingType, String audioFileName) {
         this(customer, bookingType);
         this.audioFileName = audioFileName;
@@ -73,6 +93,38 @@ public class Booking {
         this.place = place;
         this.appointmentDate = date;
         this.appointmentTime = time;
+    }
+
+    public String getPlace() {
+        return place;
+    }
+
+    public void setPlace(String place) {
+        this.place = place;
+    }
+
+    public Calendar getAppointmentDate() {
+        return appointmentDate;
+    }
+
+    public void setAppointmentDate(Calendar appointmentDate) {
+        this.appointmentDate = appointmentDate;
+    }
+
+    public Calendar getAppointmentTime() {
+        return appointmentTime;
+    }
+
+    public void setAppointmentTime(Calendar appointmentTime) {
+        this.appointmentTime = appointmentTime;
+    }
+
+    public int getVehicleTypeId() {
+        return vehicleTypeId;
+    }
+
+    public void setVehicleTypeId(int vehicleTypeId) {
+        this.vehicleTypeId = vehicleTypeId;
     }
 
     public HashMap<String, String> toHashMap() {
@@ -100,6 +152,17 @@ public class Booking {
             bookingHasMap.put("appointmentTime", AppConstants.getStringTime(appointmentTime));
         }
         return bookingHasMap;
+    }
+    public MultipartBody toMultipartBody(){
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        builder.setType(MultipartBody.FORM);
+        File file = new File(getAudioFileName());
+        MediaType mediaType = MediaType.parse("audio/mpeg");
+        builder.addFormDataPart("record_file", file.getName(), RequestBody.create(mediaType, file));
+        builder.addFormDataPart("bookingtypeId", bookingType.getId()+"");
+        builder.addFormDataPart("customerid", getCustomer().getCustomerId() + "");
+        MultipartBody multipartBody = builder.build();
+        return multipartBody;
     }
 
 

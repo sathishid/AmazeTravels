@@ -171,18 +171,20 @@ public class VoiceBookingActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+
         if (mediaRecorder != null) {
+
             mediaRecorder.stop();
             mediaRecorder.release();
             mediaRecorder = null;
         }
+
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
+            mediaPlayer.stop();
             mediaPlayer.release();
-            mediaPlayer = null;
+            MediaRecorderReady();
         }
+
     }
 
     public void MediaRecorderReady() {
@@ -310,14 +312,8 @@ public class VoiceBookingActivity extends AppCompatActivity {
             Booking booking = bookings[0];
             HttpResponse httpResponse = new HttpResponse();
             OkHttpClient client = new OkHttpClient();
-            File file = new File(booking.getAudioFileName());
-            MultipartBody.Builder builder = new MultipartBody.Builder();
-            builder.setType(MultipartBody.FORM);
 
-            MediaType mediaType = MediaType.parse("audio/mpeg");
-            builder.addFormDataPart("record_file", file.getName(), RequestBody.create(mediaType, file));
-            builder.addFormDataPart("customerid", booking.getCustomer().getCustomerId() + "");
-            MultipartBody multipartBody = builder.build();
+            MultipartBody multipartBody = booking.toMultipartBody();
             Request request = new Request.Builder()
                     .url(AppConstants.getBookingApi())
                     .post(multipartBody)

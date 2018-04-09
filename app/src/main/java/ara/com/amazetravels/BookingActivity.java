@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -61,6 +62,7 @@ public class BookingActivity extends AppCompatActivity {
     @BindView(R.id.input_place)
     EditText place;
     SpinnerAdapter vehicleTypes_spinnerAdapter;
+    Booking booking;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,7 @@ public class BookingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_booking);
         ButterKnife.bind(this);
         populateValues();
+        booking = new Booking(AppConstants.getCurrentUser(), BookingTypes.NON_VOICE);
     }
 
     @Override
@@ -164,6 +167,7 @@ public class BookingActivity extends AppCompatActivity {
                     arrVehicleTypes);
             spinner_VehicleType.setAdapter(vehicleTypes_spinnerAdapter);
 
+
             Log.i("Update Vehicle Types", "Vehicle Type Count:" + vehicleTypes.length());
         } catch (Exception e) {
             Log.e("Vechicle Type", e.toString());
@@ -173,7 +177,14 @@ public class BookingActivity extends AppCompatActivity {
 
     public void bookRide_Clicked(View view) {
         button_booking.setEnabled(false);
-
+        booking.setPlace(place.getText().toString());
+        if (checkBox_otherUser.isChecked()) {
+            booking.setUserName(input_OtherUser.getText().toString());
+            booking.setMobile(input_OtherMobile.getText().toString());
+        }
+        VehicleType vehicleType = (VehicleType) spinner_VehicleType.getSelectedItem();
+        booking.setVehicleTypeId(vehicleType.getVehicleId());
+        ;
         if (!validate()) {
             onBookingFailure(null);
             return;
@@ -184,7 +195,7 @@ public class BookingActivity extends AppCompatActivity {
             otherUser = input_OtherUser.getText().toString();
             otherMobile = input_OtherMobile.getText().toString();
         }
-        Booking booking = new Booking(AppConstants.getCurrentUser(), BookingTypes.NON_VOICE);
+
         try {
             final HttpRequest httpRequest = new HttpRequest();
 
@@ -192,7 +203,6 @@ public class BookingActivity extends AppCompatActivity {
 
             httpRequest.setParams(booking.toHashMap());
             httpRequest.setMethodtype(HttpRequest.POST);
-
 
 
             new HttpCaller(BookingActivity.this) {
@@ -275,7 +285,7 @@ public class BookingActivity extends AppCompatActivity {
             input_OtherMobile.setError(null);
         }
 
-        if (strPlace.isEmpty() || strPlace.length() >= 4) {
+        if (strPlace.isEmpty() || strPlace.length() <= 4) {
             place.setError("Enter Valid Place");
             valid = false;
         } else {
@@ -307,7 +317,7 @@ public class BookingActivity extends AppCompatActivity {
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
                 Calendar calendar = new GregorianCalendar(year, month, day);
                 bookingDate.setTag(calendar);
-
+                booking.setAppointmentDate(calendar);
                 bookingDate.setText(AppConstants.getStringDate(calendar));
             }
         };
@@ -334,11 +344,11 @@ public class BookingActivity extends AppCompatActivity {
                 calendar.set(Calendar.MINUTE, minute);
                 bookingTime.setTag(calendar);
                 bookingTime.setText(AppConstants.getStringTime(calendar));
+                booking.setAppointmentTime(calendar);
             }
         };
         showTimePicker(onTimeSetListener);
     }
-
 
 
 }
