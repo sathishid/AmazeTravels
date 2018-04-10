@@ -89,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
             httpRequest.getParams().put("password", password);
             httpRequest.setMethodtype(HttpRequest.POST);
 
-            new HttpCaller(LoginActivity.this) {
+            new HttpCaller(LoginActivity.this,"Validating User...") {
 
 
                 @Override

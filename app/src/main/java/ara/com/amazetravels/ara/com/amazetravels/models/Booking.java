@@ -147,7 +147,7 @@ public class Booking {
         if (this.place != null && !this.place.isEmpty())
             bookingHasMap.put("place", this.place);
         if (this.appointmentDate != null)
-            bookingHasMap.put("appointmentDate", AppConstants.getStringDate(appointmentDate));
+            bookingHasMap.put("appointmentDate", AppConstants.getStringDate(appointmentDate,false));
         if (appointmentTime != null) {
             bookingHasMap.put("appointmentTime", AppConstants.getStringTime(appointmentTime));
         }

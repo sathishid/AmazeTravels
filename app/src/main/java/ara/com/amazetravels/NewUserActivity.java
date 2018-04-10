@@ -89,7 +89,7 @@ public class NewUserActivity extends AppCompatActivity {
             httpRequest.setParams(customer.toHashMap());
             httpRequest.setMethodtype(HttpRequest.POST);
 
-            new HttpCaller(NewUserActivity.this) {
+            new HttpCaller(NewUserActivity.this,"Creating User...") {
 
                 @Override
                 public void onResponse(HttpResponse response) {

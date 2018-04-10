@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -37,11 +36,12 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
     private static final String UTF_8 = "UTF-8";
     Context context;
     ProgressDialog progressDialog;
+    String progressMessage;
 
-    public HttpCaller(Context context) {
+    public HttpCaller(Context context, String progressMessage) {
         super();
         this.context = context;
-
+        this.progressMessage = progressMessage;
 
     }
 
@@ -51,7 +51,7 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
         progressDialog = new ProgressDialog(context,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
+        progressDialog.setMessage(progressMessage);
         progressDialog.show();
     }
 
@@ -146,7 +146,6 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
             outputStream.close();
         }
     }
-
 
 
     private HttpURLConnection createULRConnection(HttpRequest httpRequest) throws

@@ -4,8 +4,11 @@ import android.util.Log;
 
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 
 import ara.com.amazetravels.ara.com.amazetravels.models.Customer;
@@ -79,9 +82,17 @@ public class AppConstants {
         return user;
     }
 
-    public static String getStringDate(Calendar calendar) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY");
-        return dateFormat.format(calendar.getTime());
+    public static String getStringDate(Calendar calendar,boolean forDisplay) {
+        if(forDisplay) {
+            DateFormat dateFormat= DateFormat.getDateInstance();
+            return dateFormat.format(calendar.getTime());
+        }
+        else {
+            Date date=calendar.getTime();
+            String strDate=calendar.get(Calendar.DATE)+"//"+calendar.get(Calendar.MONTH)+"//"+
+            calendar.get(Calendar.YEAR);
+            return strDate;
+        }
     }
 
     public static String getStringTime(Calendar calendar) {

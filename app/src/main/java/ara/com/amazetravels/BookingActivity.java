@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -73,29 +74,6 @@ public class BookingActivity extends AppCompatActivity {
         booking = new Booking(AppConstants.getCurrentUser(), BookingTypes.NON_VOICE);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_tabbed, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_logout) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
     private void populateValues() {
         input_OtherUser.setEnabled(false);
         input_OtherMobile.setEnabled(false);
@@ -129,7 +107,7 @@ public class BookingActivity extends AppCompatActivity {
 
         httpRequest.setUrl(AppConstants.getVehicleTypeApi());
 
-        new HttpCaller(BookingActivity.this) {
+        new HttpCaller(BookingActivity.this,"Loading Vehicles...") {
             @Override
             public void onResponse(HttpResponse response) {
                 button_booking.setEnabled(true);
@@ -205,7 +183,7 @@ public class BookingActivity extends AppCompatActivity {
             httpRequest.setMethodtype(HttpRequest.POST);
 
 
-            new HttpCaller(BookingActivity.this) {
+            new HttpCaller(BookingActivity.this,"Booking Ride...") {
                 @Override
                 public void onResponse(HttpResponse response) {
 
@@ -312,13 +290,20 @@ public class BookingActivity extends AppCompatActivity {
     }
 
     public void bookingDate_OnClick(View view) {
+        final View innerView=view;
         DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                Calendar calendar = new GregorianCalendar(year, month, day);
-                bookingDate.setTag(calendar);
-                booking.setAppointmentDate(calendar);
-                bookingDate.setText(AppConstants.getStringDate(calendar));
+                try {
+                    Calendar calendar = new GregorianCalendar(year, month, day);
+
+                    booking.setAppointmentDate(calendar);
+                    bookingDate.setText(AppConstants.getStringDate(calendar,true));
+                }
+                catch(Exception exception){
+                    booking.setAppointmentDate(null);
+                    Snackbar.make(innerView,exception.getMessage(),Snackbar.LENGTH_LONG).show();
+                }
             }
         };
         showDatePicker(myDateListener);
