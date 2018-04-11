@@ -153,8 +153,7 @@ public class NewUserActivity extends AppCompatActivity {
         boolean valid = true;
 
         String name = _nameText.getText().toString();
-        String address = _addressText.getText().toString();
-        String area = _areaText.getText().toString();
+
         String mobile = _mobileText.getText().toString();
         String password = _passwordText.getText().toString();
         String reEnterPassword = _reEnterPasswordText.getText().toString();
@@ -166,19 +165,6 @@ public class NewUserActivity extends AppCompatActivity {
             _nameText.setError(null);
         }
 
-        if (area.isEmpty() || area.length() < 3) {
-            _areaText.setError("at least 3 characters");
-            valid = false;
-        } else {
-            _areaText.setError(null);
-        }
-
-        if (address.isEmpty()) {
-            _addressText.setError("Enter Valid Address");
-            valid = false;
-        } else {
-            _addressText.setError(null);
-        }
 
         if (mobile.isEmpty() || mobile.length() != 10) {
             _mobileText.setError("Enter Valid Mobile Number");

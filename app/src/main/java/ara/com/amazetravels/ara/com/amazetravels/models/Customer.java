@@ -1,7 +1,13 @@
 package ara.com.amazetravels.ara.com.amazetravels.models;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.HashMap;
+
+import static ara.com.amazetravels.ara.com.utils.AppConstants.CUSTOMER_ID;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.CUSTOMER_NAME;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.MOBILE_NUMBER;
 
 /**
  * Created by sathi on 28-03-2018.
@@ -61,7 +67,7 @@ public class Customer implements Serializable {
         return mobile;
     }
 
-    public Customer(int customerId, String name, String password, String mobile,
+    public Customer(@NonNull int customerId, @NonNull String name, String password,@NonNull String mobile,
                     String address, String area, String city) {
         this.customerId = customerId;
         this.name = name;
@@ -78,10 +84,10 @@ public class Customer implements Serializable {
 
     public HashMap<String, String> toHashMap() {
         HashMap<String, String> customerHasMap = new HashMap<>(10);
-        customerHasMap.put("customerId", this.customerId + "");
-        customerHasMap.put("name", this.name);
+        customerHasMap.put(CUSTOMER_ID, this.customerId + "");
+        customerHasMap.put(CUSTOMER_NAME, this.name);
         customerHasMap.put("password", this.password);
-        customerHasMap.put("mobileno", this.mobile);
+        customerHasMap.put(MOBILE_NUMBER, this.mobile);
         customerHasMap.put("address", this.address);
         customerHasMap.put("area", this.area);
         customerHasMap.put("city", this.city);

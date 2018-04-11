@@ -1,7 +1,9 @@
 package ara.com.amazetravels;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import ara.com.amazetravels.ara.com.amazetravels.models.Customer;
 import ara.com.amazetravels.ara.com.amazetravels.models.VehicleType;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
@@ -24,6 +27,11 @@ import ara.com.amazetravels.ara.com.utils.AppConstants;
 import ara.com.amazetravels.ara.com.utils.VehicleTypeAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static ara.com.amazetravels.ara.com.utils.AppConstants.CUSTOMER_ID;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.CUSTOMER_NAME;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.MOBILE_NUMBER;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.PREFERENCE_NAME;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -89,7 +97,7 @@ public class LoginActivity extends AppCompatActivity {
             httpRequest.getParams().put("password", password);
             httpRequest.setMethodtype(HttpRequest.POST);
 
-            new HttpCaller(LoginActivity.this,"Validating User...") {
+            new HttpCaller(LoginActivity.this, "Validating User...") {
 
 
                 @Override
@@ -119,7 +127,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-                Snackbar snackbar = Snackbar.make(rootLayout,"User Created Successfully",Snackbar.LENGTH_SHORT);
+                Snackbar snackbar = Snackbar.make(rootLayout, "User Created Successfully", Snackbar.LENGTH_SHORT);
                 snackbar.show();
             }
         }
@@ -144,11 +152,16 @@ public class LoginActivity extends AppCompatActivity {
             Log.i("LoginSuccess", response.getMesssage());
 
             AppConstants.setCustomer(jsonObject);
+            Customer customer = AppConstants.getCurrentUser();
+            SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
 
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt(CUSTOMER_ID, customer.getCustomerId());
+            editor.putString(CUSTOMER_NAME, customer.getName());
+            editor.putString(MOBILE_NUMBER, customer.getMobile());
+            editor.commit();
+            setResult(RESULT_OK);
             finish();
-
 
         } catch (Exception e) {
             Log.e("On Login Success", e.getMessage());

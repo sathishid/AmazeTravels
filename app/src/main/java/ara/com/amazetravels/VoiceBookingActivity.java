@@ -3,24 +3,28 @@ package ara.com.amazetravels;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
+import android.provider.CalendarContract;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Random;
 
@@ -28,144 +32,184 @@ import ara.com.amazetravels.ara.com.amazetravels.models.Booking;
 import ara.com.amazetravels.ara.com.amazetravels.models.BookingTypes;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpResponse;
 import ara.com.amazetravels.ara.com.utils.AppConstants;
-import okhttp3.MediaType;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.AUDIO_BOOKING_MIN;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.AUDIO_BOOKING_TIME;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.COUNT_DOWN_INTERVAL;
 
 public class VoiceBookingActivity extends AppCompatActivity {
     private final String TAG = "Voice Booking Activity";
     private final String AUDIO_EXTENSION = ".mp3";
-
-
-    Button buttonStart;
-
-    Button buttonStop;
-    Button buttonBookVoice;
-    ScrollView scrollViewRoot;
-    Button buttonPlayLastRecordAudio;
-
-    Button buttonStopPlayingRecording;
-    String AudioSavePathInDevice = null;
-    MediaRecorder mediaRecorder;
-    Random random;
-    String RandomAudioFileName = "ABCDEFGHIJKLMNOP";
+    private static final String RandomAudioFileName = "ABCDEFGHIJKLMNOP";
     public static final int RequestPermissionCode = 1;
+
+    @BindView(R.id.layout_scroll_view_voice_book)
+    ScrollView scrollViewRoot;
+
+
+    @BindView(R.id.btn_record)
+    Button button_recording;
+
+    @BindView(R.id.btn_play)
+    Button button_play_stop;
+
+    @BindView(R.id.pb_audio)
+    ProgressBar progressBar;
+
+    @BindView(R.id.voice_book_text_time)
+    TextView textView_time;
+
+    @BindView(R.id.btn_book_voice)
+    Button button_voice_booking;
+
+    MediaRecorder mediaRecorder;
     MediaPlayer mediaPlayer;
+
+    Booking booking;
+
+
+    CountDownTimer countDownTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voice_booking);
+        ButterKnife.bind(this);
+        button_recording = (Button) findViewById(R.id.btn_record);
+        booking = new Booking(AppConstants.getCurrentUser()
+                , BookingTypes.VOICE);
+        changeButtonState(button_play_stop,false);
+        changeButtonState(button_voice_booking,false);
+    }
 
-        buttonStart = (Button) findViewById(R.id.btn_record);
+    private void changeButtonState(Button btnControl, boolean state) {
+        btnControl.setEnabled(state);
+        if (state) {
+            //Enable state
+            btnControl.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.primary_dark,null));
+        } else {
+            btnControl.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.gray,null));
+        }
+    }
 
-        buttonStop = (Button) findViewById(R.id.btn_stop);
-        buttonPlayLastRecordAudio = (Button) findViewById(R.id.btn_play);
-        buttonStopPlayingRecording = (Button) findViewById(R.id.btn_stop_recording);
-        scrollViewRoot = (ScrollView) findViewById(R.id.layout_scroll_view_voice_book);
-        buttonBookVoice = (Button) findViewById(R.id.btn_book_voice);
-        buttonStop.setEnabled(false);
-        buttonPlayLastRecordAudio.setEnabled(false);
-        buttonStopPlayingRecording.setEnabled(false);
+    private void initCountDownTimer(int secondsInFuture) {
+        progressBar.setMax(secondsInFuture);
 
-        random = new Random();
-        buttonBookVoice.setEnabled(false);
-        buttonStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        textView_time.setText(secondsInFuture + "");
 
-                if (checkPermission()) {
+        countDownTimer = new CountDownTimer(secondsInFuture * COUNT_DOWN_INTERVAL
+                , COUNT_DOWN_INTERVAL) {
 
-                    AudioSavePathInDevice =
-                            Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
-                                    CreateRandomAudioFileName(5) + "AudioRecording.mp3";
+            public void onTick(long millisUntilFinished) {
+                int progress = (int) (millisUntilFinished / COUNT_DOWN_INTERVAL);
+                progressBar.setProgress(progress);
+                textView_time.setText(progress + "");
+            }
 
-                    MediaRecorderReady();
-
-                    try {
-                        mediaRecorder.prepare();
-                        mediaRecorder.start();
-                    } catch (IllegalStateException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+            public void onFinish() {
+                if (button_recording.getText().toString().compareToIgnoreCase("Stop") == 0) {
+                    changeButtonState(button_play_stop,true);
+                    changeButtonState(button_voice_booking,true);
+                    button_recording.setText(R.string.record);
+                    if (mediaRecorder != null) {
+                        mediaRecorder.stop();
+                        mediaRecorder.release();
+                        mediaRecorder = null;
                     }
+                }
+                if (button_play_stop.getText().toString().compareToIgnoreCase("Stop") == 0) {
+                    progressBar.setProgress(0);
+                    if (mediaPlayer != null) {
+                        mediaPlayer.stop();
+                        mediaPlayer.release();
+                        mediaPlayer = null;
+                    }
+                    changeButtonState(button_voice_booking,true);
+                    changeButtonState(button_recording,true);
 
-                    buttonStart.setEnabled(false);
-                    buttonPlayLastRecordAudio.setEnabled(false);
-                    buttonStop.setEnabled(true);
 
-                    Toast.makeText(VoiceBookingActivity.this, "Recording started",
-                            Toast.LENGTH_LONG).show();
-                } else {
-                    requestPermission();
+                    button_play_stop.setText(R.string.play);
                 }
 
             }
-        });
+        };
+    }
 
-        buttonStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                buttonBookVoice.setEnabled(true);
-                mediaRecorder.stop();
-                buttonStop.setEnabled(false);
-                buttonPlayLastRecordAudio.setEnabled(true);
-                buttonStart.setEnabled(true);
-                buttonStopPlayingRecording.setEnabled(false);
+    public void btnPlayStopOnClick(View view) {
+        if (button_play_stop.getText().toString().compareToIgnoreCase("Stop") == 0) {
+            countDownTimer.cancel();
+            countDownTimer.onFinish();
+        } else {
 
-                Toast.makeText(VoiceBookingActivity.this, "Recording Completed",
-                        Toast.LENGTH_LONG).show();
+            changeButtonState(button_voice_booking,false);
+            changeButtonState(button_recording,false);
+            button_play_stop.setText(R.string.stop);
+
+            mediaPlayer = new MediaPlayer();
+            try {
+                mediaPlayer.setDataSource(booking.getAudioFileName());
+                mediaPlayer.prepare();
+                initCountDownTimer((int) (mediaPlayer.getDuration() / COUNT_DOWN_INTERVAL));
+                countDownTimer.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
             }
-        });
 
-        buttonPlayLastRecordAudio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) throws IllegalArgumentException,
-                    SecurityException, IllegalStateException {
-                buttonBookVoice.setEnabled(false);
-                buttonStop.setEnabled(false);
-                buttonStart.setEnabled(false);
-                buttonStopPlayingRecording.setEnabled(true);
+            mediaPlayer.start();
+            countDownTimer.start();
+            Toast.makeText(VoiceBookingActivity.this, "Recorded Playing",
+                    Toast.LENGTH_LONG).show();
+        }
+    }
 
-                mediaPlayer = new MediaPlayer();
+    public void btnRecordOnClick(View view) {
+        if (checkPermission()) {
+
+            if (button_recording.getText().toString().compareToIgnoreCase("Stop") == 0) {
+
+                countDownTimer.cancel();
+                countDownTimer.onFinish();
+
+            } else {
+
+                button_recording.setText(R.string.stop);
+                changeButtonState(button_play_stop,false);
+                changeButtonState(button_voice_booking,false);
+
+                booking.setAudioFileName(
+                        Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
+                                createRandomAudioFileName(5) + "AudioRecording.mp3"
+                );
+
+                mediaRecorderReady();
+
                 try {
-                    mediaPlayer.setDataSource(AudioSavePathInDevice);
-                    mediaPlayer.prepare();
-                } catch (IOException e) {
+                    mediaRecorder.prepare();
+                    mediaRecorder.start();
+                    initCountDownTimer(3 * 60);
+                    countDownTimer.start();
+                } catch (IllegalStateException e) {
+                    // TODO Auto-generated catch block
                     e.printStackTrace();
-                }
-
-                mediaPlayer.start();
-                Toast.makeText(VoiceBookingActivity.this, "Recording Playing",
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-
-        buttonStopPlayingRecording.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                buttonStop.setEnabled(false);
-                buttonBookVoice.setEnabled(true);
-                buttonStart.setEnabled(true);
-                buttonStopPlayingRecording.setEnabled(false);
-                buttonPlayLastRecordAudio.setEnabled(true);
-
-                if (mediaPlayer != null) {
-                    mediaPlayer.stop();
-                    mediaPlayer.release();
-                    MediaRecorderReady();
+                    Log.e(TAG, e.getMessage());
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    Log.e(TAG, e.getMessage());
                 }
             }
-        });
+        } else {
+            requestPermission();
+        }
     }
 
     @Override
@@ -182,20 +226,21 @@ public class VoiceBookingActivity extends AppCompatActivity {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
-            MediaRecorderReady();
+            mediaRecorderReady();
         }
 
     }
 
-    public void MediaRecorderReady() {
+    public void mediaRecorderReady() {
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        mediaRecorder.setOutputFile(AudioSavePathInDevice);
+        mediaRecorder.setOutputFile(booking.getAudioFileName());
     }
 
-    public String CreateRandomAudioFileName(int string) {
+    public String createRandomAudioFileName(int string) {
+        Random random = new Random();
         StringBuilder stringBuilder = new StringBuilder(string);
         int i = 0;
         while (i < string) {
@@ -246,8 +291,6 @@ public class VoiceBookingActivity extends AppCompatActivity {
     public void voice_book_ride_onClick(View view) {
         try {
 
-            Booking booking = new Booking(AppConstants.getCurrentUser()
-                    , BookingTypes.VOICE, AudioSavePathInDevice);
 
             bookRide(booking);
 
@@ -270,11 +313,11 @@ public class VoiceBookingActivity extends AppCompatActivity {
 
     private void onSuccess(HttpResponse response) {
         if (!response.getMesssage().contains(AppConstants.SUCCESS_MESSAGE)) {
-            showSnackbar(R.string.something_went_wrong);
+            showSnackBar(R.string.something_went_wrong_support);
         }
         if (response.getMesssage().compareToIgnoreCase(AppConstants.SUCCESS_MESSAGE) == 0) {
-            if (AudioSavePathInDevice != null) {
-                File file = new File(AudioSavePathInDevice);
+            if (booking.getAudioFileName() != null) {
+                File file = new File(booking.getAudioFileName());
                 file.delete();
             }
             Intent intent = new Intent();
@@ -284,7 +327,7 @@ public class VoiceBookingActivity extends AppCompatActivity {
         }
     }
 
-    private void showSnackbar(int message) {
+    private void showSnackBar(int message) {
         final Snackbar snackbar = Snackbar.make(scrollViewRoot, message,
                 Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction(R.string.ok_button_text, new View.OnClickListener() {
@@ -334,6 +377,13 @@ public class VoiceBookingActivity extends AppCompatActivity {
         protected void onPostExecute(HttpResponse httpResponse) {
             if (dialog.isShowing())
                 dialog.dismiss();
+
+            try {
+                File file = new File(booking.getAudioFileName());
+                file.deleteOnExit();
+            } catch (Exception exception) {
+                Log.e(TAG, "Fail cannot be deleted." + exception.getMessage());
+            }
 
             if (httpResponse.getStatus() == HttpResponse.Success) {
                 Log.i(TAG, "----------" + httpResponse.getMesssage());

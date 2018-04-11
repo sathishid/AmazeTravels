@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#56000000</color>
-    <color name="primary_dark">#c2ffd700</color>
+    <color name="primary">#e6ae09</color>
+    <color name="primary_dark">#feffd700</color>
     <color name="primary_darker">#feffd700</color>
     <color name="accent">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="control_color">#FFFFFF</color>
+    <color name="control_color">#FFFFFF</color>\
 
+    <color name="gray">#808080</color>
     <color name="iron">#CCCCCC</color>
     <color name="white">#FFFFFF</color>
 </resources>

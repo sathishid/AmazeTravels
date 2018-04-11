@@ -1,6 +1,8 @@
 package ara.com.amazetravels;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,12 +12,20 @@ import android.widget.Toast;
 
 import ara.com.amazetravels.ara.com.amazetravels.models.Booking;
 import ara.com.amazetravels.ara.com.amazetravels.models.BookingTypes;
+import ara.com.amazetravels.ara.com.amazetravels.models.Customer;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpCaller;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpRequest;
 import ara.com.amazetravels.ara.com.amazetravles.http.HttpResponse;
 import ara.com.amazetravels.ara.com.utils.AppConstants;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static ara.com.amazetravels.ara.com.utils.AppConstants.CUSTOMER_ID;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.CUSTOMER_NAME;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.IDENTITY;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.MOBILE_NUMBER;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.PREFERENCE_NAME;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.REQUEST_LOGIN;
 
 public class MainActivity extends AppCompatActivity {
     @BindView(R.id.layout_scrollView_root)
@@ -27,6 +37,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
+        if (!sharedPreferences.contains(CUSTOMER_ID)) {
+
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivityForResult(intent, REQUEST_LOGIN);
+        }
+        else{
+            updateCurrentUser();
+        }
     }
 
     public void bookRide_OnClick(View view) {
@@ -36,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_LOGIN && resultCode == RESULT_OK) {
+
+            updateCurrentUser();
+        }
         if (requestCode == AppConstants.REQUEST_BOOKING) {
             if (resultCode == RESULT_OK) {
                 showSuccessSnackbar();
@@ -43,6 +67,15 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == AppConstants.REQUEST_VOICE_BOOKING && resultCode == RESULT_OK) {
             showSuccessSnackbar();
         }
+    }
+
+    private void updateCurrentUser() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE);
+        int id = sharedPreferences.getInt(CUSTOMER_ID, -1);
+        String customerName = sharedPreferences.getString(CUSTOMER_NAME, null);
+        String mobileNo = sharedPreferences.getString(MOBILE_NUMBER, null);
+        Customer customer = new Customer(id, customerName, null, mobileNo, null, null, null);
+        AppConstants.setCustomer(customer);
     }
 
     private void showSuccessSnackbar() {
@@ -79,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
             httpRequest.setMethodtype(HttpRequest.POST);
 
 
-            new HttpCaller(MainActivity.this,"Emergency Booking...") {
+            new HttpCaller(MainActivity.this, "Emergency Booking...") {
                 @Override
                 public void onResponse(HttpResponse response) {
 

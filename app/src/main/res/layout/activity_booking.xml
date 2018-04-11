@@ -127,7 +127,6 @@
                         android:text="@string/text_date" />
 
                     <LinearLayout
-                        android:id="@+id/layout_booking_date"
                         android:onClick="bookingDate_OnClick"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -159,7 +158,6 @@
                         android:text="@string/text_time" />
 
                     <LinearLayout
-                        android:id="@+id/layout_booking_time"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="1"

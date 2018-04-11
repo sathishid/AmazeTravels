@@ -57,6 +57,10 @@ public class Booking {
         return audioFileName;
     }
 
+    public void setAudioFileName(String audioFileName) {
+        this.audioFileName = audioFileName;
+    }
+
     public String getUserName() {
         return userName;
     }

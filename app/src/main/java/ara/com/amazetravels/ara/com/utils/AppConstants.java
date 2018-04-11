@@ -27,6 +27,7 @@ public class AppConstants {
     private static final String BOOKING_API = "booking";
     public static final int REQUEST_BOOKING = 0;
     public static final int REQUEST_VOICE_BOOKING = 1;
+    public static final int REQUEST_LOGIN = 100;
 
     public static String getAddCustomerUrl() {
         return URL_FEED + ADD_CUSTOMER_API;
@@ -44,6 +45,12 @@ public class AppConstants {
         return URL_FEED + BOOKING_API;
     }
 
+    public static String PREFERENCE_NAME = "amaze_travels.ara";
+
+    public static long COUNT_DOWN_INTERVAL = 1000;
+    public static long AUDIO_BOOKING_TIME = 3 * 60 * 1000;
+    public static int AUDIO_BOOKING_MIN = 3 * 60;
+
 
     public static String VEHICLE_TYPE_ID = "vehicle_type_id";
     public static String VEHICLE_NAME = "vehicle_type_name";
@@ -52,6 +59,9 @@ public class AppConstants {
     public static final String USER_ID = "userid";
     public static final String USER_NAME = "username";
     public static final String MOBILE_NUMBER = "mobileno";
+    public static final String IDENTITY = "Identity";
+    public static final String CUSTOMER_NAME = "name";
+    public static final String CUSTOMER_ID = "customerId";
 
 
     private static Customer user;
@@ -82,15 +92,14 @@ public class AppConstants {
         return user;
     }
 
-    public static String getStringDate(Calendar calendar,boolean forDisplay) {
-        if(forDisplay) {
-            DateFormat dateFormat= DateFormat.getDateInstance();
+    public static String getStringDate(Calendar calendar, boolean forDisplay) {
+        if (forDisplay) {
+            DateFormat dateFormat = DateFormat.getDateInstance();
             return dateFormat.format(calendar.getTime());
-        }
-        else {
-            Date date=calendar.getTime();
-            String strDate=calendar.get(Calendar.DATE)+"//"+calendar.get(Calendar.MONTH)+"//"+
-            calendar.get(Calendar.YEAR);
+        } else {
+            Date date = calendar.getTime();
+            String strDate = calendar.get(Calendar.DATE) + "//" + calendar.get(Calendar.MONTH) + "//" +
+                    calendar.get(Calendar.YEAR);
             return strDate;
         }
     }
