@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
+import java.util.Random;
 
 import ara.com.amazetravels.ara.com.amazetravels.models.Booking;
 import ara.com.amazetravels.ara.com.amazetravels.models.BookingTypes;
@@ -22,7 +26,6 @@ import butterknife.ButterKnife;
 
 import static ara.com.amazetravels.ara.com.utils.AppConstants.CUSTOMER_ID;
 import static ara.com.amazetravels.ara.com.utils.AppConstants.CUSTOMER_NAME;
-import static ara.com.amazetravels.ara.com.utils.AppConstants.IDENTITY;
 import static ara.com.amazetravels.ara.com.utils.AppConstants.MOBILE_NUMBER;
 import static ara.com.amazetravels.ara.com.utils.AppConstants.PREFERENCE_NAME;
 import static ara.com.amazetravels.ara.com.utils.AppConstants.REQUEST_LOGIN;
@@ -43,15 +46,29 @@ public class MainActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, REQUEST_LOGIN);
-        }
-        else{
+        } else {
             updateCurrentUser();
         }
+
     }
 
     public void bookRide_OnClick(View view) {
         Intent intent = new Intent(this, BookingActivity.class);
         startActivityForResult(intent, AppConstants.REQUEST_BOOKING);
+    }
+
+    private void showNotification(String textTitle, String textContent) {
+        String CHANNEL_ID = "channel_1";
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification_smal)
+                .setContentTitle(textTitle)
+                .setContentText(textContent)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+// notificationId is a unique int for each notification that you must define
+        notificationManager.notify(new Random(100).nextInt(), mBuilder.build());
+
     }
 
     @Override
@@ -62,11 +79,14 @@ public class MainActivity extends AppCompatActivity {
         }
         if (requestCode == AppConstants.REQUEST_BOOKING) {
             if (resultCode == RESULT_OK) {
+
                 showSuccessSnackbar();
             }
         } else if (requestCode == AppConstants.REQUEST_VOICE_BOOKING && resultCode == RESULT_OK) {
+
             showSuccessSnackbar();
         }
+
     }
 
     private void updateCurrentUser() {

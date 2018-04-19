@@ -48,11 +48,13 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        progressDialog = new ProgressDialog(context,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage(progressMessage);
-        progressDialog.show();
+        if(progressMessage!=null) {
+            progressDialog = new ProgressDialog(context,
+                    R.style.AppTheme_Dark_Dialog);
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage(progressMessage);
+            progressDialog.show();
+        }
     }
 
 
@@ -97,7 +99,8 @@ public class HttpCaller extends AsyncTask<HttpRequest, String, HttpResponse> {
     protected void onPostExecute(HttpResponse response) {
 
         super.onPostExecute(response);
-        progressDialog.dismiss();
+        if(progressMessage!=null)
+            progressDialog.dismiss();
         onResponse(response);
 
     }
