@@ -22,17 +22,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity">
-
-        </activity>
+        <activity android:name=".LoginActivity" />
         <activity android:name=".NewUserActivity" />
-        <activity android:name=".BookingActivity">
+        <activity android:name=".BookingActivity" />
+        <activity android:name=".VoiceBookingActivity" />
 
-        </activity>
+        <service
+            android:name=".ara.com.utils.BookingService"
+            android:exported="false" />
 
-        <activity android:name=".VoiceBookingActivity">
-
-        </activity>
+        <activity
+            android:name=".BookingHistory"
+            android:label="@string/title_activity_booking_history"
+            android:theme="@style/AppTheme.Dark"></activity>
     </application>
 
 </manifest>

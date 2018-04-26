@@ -7,10 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -24,6 +21,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
@@ -40,7 +38,11 @@ import ara.com.amazetravels.ara.com.utils.VehicleTypeAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static ara.com.amazetravels.ara.com.utils.AppConstants.PARAM_BOOKING_ID;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.PARAM_STATUS;
+
 public class BookingActivity extends AppCompatActivity {
+    private static final String TAG = "Booking Activitiy";
     @BindView(R.id.main_scrollView)
     ScrollView scrollView;
     @BindView(R.id.checkbox_other_user)
@@ -107,7 +109,7 @@ public class BookingActivity extends AppCompatActivity {
 
         httpRequest.setUrl(AppConstants.getVehicleTypeApi());
 
-        new HttpCaller(BookingActivity.this,"Loading Vehicles...") {
+        new HttpCaller(BookingActivity.this, "Loading Vehicles...") {
             @Override
             public void onResponse(HttpResponse response) {
                 button_booking.setEnabled(true);
@@ -183,7 +185,7 @@ public class BookingActivity extends AppCompatActivity {
             httpRequest.setMethodtype(HttpRequest.POST);
 
 
-            new HttpCaller(BookingActivity.this,"Booking Ride...") {
+            new HttpCaller(BookingActivity.this, "Booking Ride...") {
                 @Override
                 public void onResponse(HttpResponse response) {
 
@@ -216,16 +218,22 @@ public class BookingActivity extends AppCompatActivity {
 
     private void onBookingSuccess(HttpResponse response) {
         button_booking.setEnabled(true);
-        if (!response.getMesssage().contains(AppConstants.SUCCESS_MESSAGE)) {
-            Toast.makeText(BookingActivity.this, "Something Went Wrong! Please contact support.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (response.getMesssage().compareToIgnoreCase(AppConstants.SUCCESS_MESSAGE) == 0) {
-            clearAll();
-            Intent resultIntent = new Intent();
-            setResult(RESULT_OK, resultIntent);
-            finish();
+        try {
+            JSONObject jsonObject = response.getJSONObject();
+            if (!jsonObject.getString(PARAM_STATUS).contains(AppConstants.SUCCESS_MESSAGE)) {
+                Toast.makeText(BookingActivity.this, "Something Went Wrong! Please contact support.", Toast.LENGTH_SHORT).show();
+                return;
+            } else {
+                clearAll();
+                int bookingId = jsonObject.getInt(PARAM_BOOKING_ID);
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(PARAM_BOOKING_ID, bookingId);
+                setResult(RESULT_OK, resultIntent);
+                finish();
+            }
 
+        } catch (JSONException exception) {
+            Log.e(TAG, exception.getMessage(), exception);
         }
 
     }
@@ -290,7 +298,7 @@ public class BookingActivity extends AppCompatActivity {
     }
 
     public void bookingDate_OnClick(View view) {
-        final View innerView=view;
+        final View innerView = view;
         DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
@@ -298,11 +306,10 @@ public class BookingActivity extends AppCompatActivity {
                     Calendar calendar = new GregorianCalendar(year, month, day);
 
                     booking.setAppointmentDate(calendar);
-                    bookingDate.setText(AppConstants.getStringDate(calendar,true));
-                }
-                catch(Exception exception){
+                    bookingDate.setText(AppConstants.getStringDate(calendar, true));
+                } catch (Exception exception) {
                     booking.setAppointmentDate(null);
-                    Snackbar.make(innerView,exception.getMessage(),Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(innerView, exception.getMessage(), Snackbar.LENGTH_LONG).show();
                 }
             }
         };

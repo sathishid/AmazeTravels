@@ -3,14 +3,12 @@ package ara.com.amazetravels;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
-import android.provider.CalendarContract;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -23,6 +21,9 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +42,9 @@ import okhttp3.Response;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static ara.com.amazetravels.ara.com.utils.AppConstants.AUDIO_BOOKING_MIN;
-import static ara.com.amazetravels.ara.com.utils.AppConstants.AUDIO_BOOKING_TIME;
 import static ara.com.amazetravels.ara.com.utils.AppConstants.COUNT_DOWN_INTERVAL;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.PARAM_BOOKING_ID;
+import static ara.com.amazetravels.ara.com.utils.AppConstants.PARAM_STATUS;
 
 public class VoiceBookingActivity extends AppCompatActivity {
     private final String TAG = "Voice Booking Activity";
@@ -86,17 +87,17 @@ public class VoiceBookingActivity extends AppCompatActivity {
         button_recording = (Button) findViewById(R.id.btn_record);
         booking = new Booking(AppConstants.getCurrentUser()
                 , BookingTypes.VOICE);
-        changeButtonState(button_play_stop,false);
-        changeButtonState(button_voice_booking,false);
+        changeButtonState(button_play_stop, false);
+        changeButtonState(button_voice_booking, false);
     }
 
     private void changeButtonState(Button btnControl, boolean state) {
         btnControl.setEnabled(state);
         if (state) {
             //Enable state
-            btnControl.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.primary_dark,null));
+            btnControl.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.primary_dark, null));
         } else {
-            btnControl.setBackgroundColor(ResourcesCompat.getColor(getResources(),R.color.gray,null));
+            btnControl.setBackgroundColor(ResourcesCompat.getColor(getResources(), R.color.gray, null));
         }
     }
 
@@ -116,8 +117,8 @@ public class VoiceBookingActivity extends AppCompatActivity {
 
             public void onFinish() {
                 if (button_recording.getText().toString().compareToIgnoreCase("Stop") == 0) {
-                    changeButtonState(button_play_stop,true);
-                    changeButtonState(button_voice_booking,true);
+                    changeButtonState(button_play_stop, true);
+                    changeButtonState(button_voice_booking, true);
                     button_recording.setText(R.string.record);
                     if (mediaRecorder != null) {
                         mediaRecorder.stop();
@@ -132,8 +133,8 @@ public class VoiceBookingActivity extends AppCompatActivity {
                         mediaPlayer.release();
                         mediaPlayer = null;
                     }
-                    changeButtonState(button_voice_booking,true);
-                    changeButtonState(button_recording,true);
+                    changeButtonState(button_voice_booking, true);
+                    changeButtonState(button_recording, true);
 
 
                     button_play_stop.setText(R.string.play);
@@ -149,8 +150,8 @@ public class VoiceBookingActivity extends AppCompatActivity {
             countDownTimer.onFinish();
         } else {
 
-            changeButtonState(button_voice_booking,false);
-            changeButtonState(button_recording,false);
+            changeButtonState(button_voice_booking, false);
+            changeButtonState(button_recording, false);
             button_play_stop.setText(R.string.stop);
 
             mediaPlayer = new MediaPlayer();
@@ -182,8 +183,8 @@ public class VoiceBookingActivity extends AppCompatActivity {
             } else {
 
                 button_recording.setText(R.string.stop);
-                changeButtonState(button_play_stop,false);
-                changeButtonState(button_voice_booking,false);
+                changeButtonState(button_play_stop, false);
+                changeButtonState(button_voice_booking, false);
 
                 booking.setAudioFileName(
                         Environment.getExternalStorageDirectory().getAbsolutePath() + "/" +
@@ -312,18 +313,23 @@ public class VoiceBookingActivity extends AppCompatActivity {
     }
 
     private void onSuccess(HttpResponse response) {
-        if (!response.getMesssage().contains(AppConstants.SUCCESS_MESSAGE)) {
-            showSnackBar(R.string.something_went_wrong_support);
-        }
-        if (response.getMesssage().compareToIgnoreCase(AppConstants.SUCCESS_MESSAGE) == 0) {
-            if (booking.getAudioFileName() != null) {
-                File file = new File(booking.getAudioFileName());
-                file.delete();
+        try {
+            JSONObject jsonObject = response.getJSONObject();
+            if (!jsonObject.getString(PARAM_STATUS).contains(AppConstants.SUCCESS_MESSAGE)) {
+                showSnackBar(R.string.something_went_wrong_support);
+            } else {
+                if (booking.getAudioFileName() != null) {
+                    File file = new File(booking.getAudioFileName());
+                    file.delete();
+                }
+                int bookingId = jsonObject.getInt(PARAM_BOOKING_ID);
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra(PARAM_BOOKING_ID, bookingId);
+                setResult(RESULT_OK, resultIntent);
+                finish();
             }
-            Intent intent = new Intent();
-            intent.putExtra("status", AppConstants.SUCCESS_MESSAGE);
-            setResult(RESULT_OK, intent);
-            finish();
+        } catch (JSONException exception) {
+            Log.e(TAG, exception.getMessage(), exception);
         }
     }
 

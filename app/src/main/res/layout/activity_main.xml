@@ -53,6 +53,13 @@
             android:layout_marginTop="10dp"
             android:onClick="bookRide_OnClick"
             android:text="@string/book_ride_text" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:onClick="bookingHistory_OnClick"
+            android:text="@string/btn_booking_history" />
     </LinearLayout>
 
 

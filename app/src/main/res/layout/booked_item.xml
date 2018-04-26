@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/image_item_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_done" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="15dp"
+        android:layout_toRightOf="@id/image_item_status">
+
+
+    <TextView
+        android:id="@+id/tv_item_booked_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Booking 101 has been confirmed" />
+
+    <TextView
+        android:id="@+id/tv_item_approved_by"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="by Rahul" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_item_confirmed_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_date"
+        android:gravity="right"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@id/image_item_status"
+        android:layout_marginRight="30dp"
+        />
+
+</RelativeLayout>

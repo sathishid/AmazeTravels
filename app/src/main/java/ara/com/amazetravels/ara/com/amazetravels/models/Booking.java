@@ -43,6 +43,29 @@ public class Booking {
     private Calendar appointmentTime;
 
     private String audioFileName;
+    private String bookedStatus;
+
+    private String approvedBy;
+
+    public String getApprovedBy() {
+        return approvedBy;
+    }
+
+    public void setApprovedBy(String approvedBy) {
+        this.approvedBy = approvedBy;
+    }
+
+    public int getBookingId() {
+        return bookingId;
+    }
+
+    public String getBookedStatus() {
+        return bookedStatus;
+    }
+
+    public void setBookedStatus(String bookedStatus) {
+        this.bookedStatus = bookedStatus;
+    }
 
     public BookingTypes getBookingType() {
         return bookingType;
@@ -84,6 +107,12 @@ public class Booking {
 
     public Booking(Customer customer, BookingTypes bookingType) {
         this(1, customer, null, null, -1, bookingType, null, null, null);
+    }
+
+    public Booking(int bookingId, String approvedBy, Calendar appointmentDate) {
+        this.bookingId = bookingId;
+        this.approvedBy = approvedBy;
+        this.appointmentDate = appointmentDate;
     }
 
     public Booking(int bookingId, Customer customer, String userName, String mobile, int vehicleTypeId,
@@ -151,19 +180,20 @@ public class Booking {
         if (this.place != null && !this.place.isEmpty())
             bookingHasMap.put("place", this.place);
         if (this.appointmentDate != null)
-            bookingHasMap.put("appointmentDate", AppConstants.getStringDate(appointmentDate,false));
+            bookingHasMap.put("appointmentDate", AppConstants.getStringDate(appointmentDate, false));
         if (appointmentTime != null) {
             bookingHasMap.put("appointmentTime", AppConstants.getStringTime(appointmentTime));
         }
         return bookingHasMap;
     }
-    public MultipartBody toMultipartBody(){
+
+    public MultipartBody toMultipartBody() {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
         File file = new File(getAudioFileName());
         MediaType mediaType = MediaType.parse("audio/mpeg");
         builder.addFormDataPart("record_file", file.getName(), RequestBody.create(mediaType, file));
-        builder.addFormDataPart("bookingtypeId", bookingType.getId()+"");
+        builder.addFormDataPart("bookingtypeId", bookingType.getId() + "");
         builder.addFormDataPart("customerid", getCustomer().getCustomerId() + "");
         MultipartBody multipartBody = builder.build();
         return multipartBody;
