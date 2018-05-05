@@ -37,13 +37,16 @@ public class BookingHistory extends AppCompatActivity {
         ButterKnife.bind(this);
 
         ArrayList<Booking> bookings = new ArrayList<>();
+        initHistory();
 
 
+    }
+
+    public void initHistory() {
         HttpRequest httpRequest = new HttpRequest();
         httpRequest.setUrl(getBookingHistoryAction());
-
         HashMap<String, String> params = new HashMap<String, String>(1);
-        params.put(CUSTOMER_ID, AppConstants.getCurrentUser().getCustomerId() + "");
+        params.put(CUSTOMER_ID, String.valueOf(AppConstants.getCurrentUser().getCustomerId()));
         httpRequest.setParams(params);
         new HttpCaller(this, "Loading Booking Histrory") {
             @Override
@@ -65,10 +68,8 @@ public class BookingHistory extends AppCompatActivity {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 Calendar calendar = AppConstants.getCalendar(jsonObject.getString("book_date"));
-                Booking booking = new Booking(
-                        jsonObject.getInt("bookId"),
-                        jsonObject.getString("booking_status"),
-                        calendar);
+                Booking booking = new Booking(jsonObject.getInt("bookId"), jsonObject.getString("booking_status"), calendar);
+                booking.setApprovedBy(jsonObject.getString("approved_by"));
                 bookings.add(booking);
             }
         } catch (JSONException jsonException) {

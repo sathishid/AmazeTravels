@@ -1,6 +1,7 @@
 package ara.com.amazetravels.ara.com.amazetravels.models;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,6 @@ public class BookingHistoryAdapter extends ArrayAdapter<Booking> {
 
         if (convertView == null) {
 
-
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.booked_item, parent, false);
         }
@@ -67,7 +67,7 @@ public class BookingHistoryAdapter extends ArrayAdapter<Booking> {
 
         bookedStatus.setText(dataModel.getBookingId() + "");
         String strApprovedBy = dataModel.getApprovedBy();
-        if (strApprovedBy.compareToIgnoreCase("Booked")!=0) {
+        if (strApprovedBy.compareToIgnoreCase("Admin")!=0) {
             approvedBy.setText("Not yet approved.");
             imageItemStatus.setImageResource(R.drawable.ic_progress);
         } else {
